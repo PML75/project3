@@ -8,6 +8,7 @@ class SampleDb:
         cursor = connection.cursor()
 
         try:
+            # Fetch specific record based on the provided table name, primary key column, and record ID
             cursor.execute(f"SELECT * FROM {table_name} WHERE {primary_key_column} = %s;", (record_id,))
             row = cursor.fetchone()
 
@@ -21,21 +22,27 @@ class SampleDb:
     def display_all_records(self, table_name):
         cursor = self.connection.cursor()
 
-        cursor.execute(f"SELECT * FROM {table_name};")
+        try:
+            # Fetch all records from the specified table
+            cursor.execute(f"SELECT * FROM {table_name};")
+            rows = cursor.fetchall()
 
-        rows = cursor.fetchall()
-        if len(rows) > 0:
-            print(f"\nAll records from '{table_name}':")
-            for row in rows:
-                print(row)
-        else:
-            print(f"No records found in '{table_name}'")
+            if len(rows) > 0:
+                print(f"\nAll records from '{table_name}':")
+                for row in rows:
+                    print(row)
+            else:
+                print(f"No records found in '{table_name}'")
+        except Exception as e:
+            print("Error executing SQL query:", e)
 
     def retrieve_artworks_sorted_by_style(self):
         try:
+            # Creating a new connection to the database
             connection = create_connection()
             cursor = connection.cursor()
 
+            # Retrieving artworks sorted by art style from the 'ArtWork' table
             query = "SELECT * FROM ArtWork ORDER BY Type;"
             cursor.execute(query)
             rows = cursor.fetchall()
@@ -46,16 +53,17 @@ class SampleDb:
                     print(row)
             else:
                 print("No records found in 'ArtWork' table")
-
         except mysql.connector.Error as e:
             print(f"Error retrieving data: {e}")
         finally:
+            # Closing cursor and connection in the 'retrieve_artworks_sorted_by_style' method
             if 'connection' in locals() and connection.is_connected():
                 cursor.close()
                 connection.close()
 
 def create_connection():
     try:
+        # Creating a connection to the MySQL database
         con = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -65,4 +73,3 @@ def create_connection():
         return con
     except mysql.connector.Error as e:
         print(e)
-
